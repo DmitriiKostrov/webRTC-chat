@@ -3,12 +3,12 @@ function SignalingChannel(id){
     var _ws;
     var self = this;
 
-    function connectToTracker(url){
+    function connectToTracker(url, onClose, onError){
         _ws = new WebSocket(url);
         _ws.onopen = _onConnectionEstablished;
-        _ws.onclose = _onClose;
         _ws.onmessage = _onMessage;
-        _ws.onerror = _onError;
+        _ws.onclose = onClose ? onClose : _onClose;
+        _ws.onerror = onError ? onError : _onError;
     }
 
     function _onConnectionEstablished(){
@@ -17,6 +17,7 @@ function SignalingChannel(id){
 
     function _onClose(){
         console.error("connection closed");
+        alert("Connection closed. Please, try again later.");
     }
 
     function _onError(err){
@@ -32,6 +33,9 @@ function SignalingChannel(id){
                 break;
             case "offer":
                 self.onOffer(objMessage.offer, objMessage.source);
+                break;
+            case "peers":
+                self.onPeers(objMessage.peers);
                 break;
             case "answer":
                 self.onAnswer(objMessage.answer, objMessage.source);
@@ -59,17 +63,21 @@ function SignalingChannel(id){
 
     function sendAnswer(answer, destination){
         _sendMessage("answer", answer, destination);
-        
     }
 
     this.connectToTracker = connectToTracker;
     this.sendICECandidate = sendICECandidate;
-    this.sendOffer = sendOffer;
-    this.sendAnswer = sendAnswer;
+    this.sendOffer        = sendOffer;
+    this.sendAnswer       = sendAnswer;
 
-    //default handler, should be overriden 
+    //default handler, should be overriden
     this.onOffer = function(offer, source){
         console.log("offer from peer:", source, ':', offer);
+    };
+
+    //default handler, should be overriden 
+    this.onPeers = function(peers){
+        console.log("peers:", peers);
     };
 
     //default handler, should be overriden 
@@ -83,8 +91,8 @@ function SignalingChannel(id){
     };
 }
 
-window.createSignalingChannel = function(url, id){
+window.createSignalingChannel = function(url, id, onClose, onError){
     var signalingChannel = new SignalingChannel(id);
-    signalingChannel.connectToTracker(url);
+    signalingChannel.connectToTracker(url, onClose, onError);
     return signalingChannel;
 };

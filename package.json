@@ -10,7 +10,7 @@
   "scripts": {
     "http-server": "node ./node_modules/http-server/bin/http-server -p 8089",
     "signaling": "node ./app/server/signalingServer.js",
-    "start":"(npm run signaling &) && npm run http-server",
+    "start": "(npm run signaling &) && npm run http-server",
     "styleCheck": "./node_modules/jshint/bin/jshint app/ && ./node_modules/echint/bin/echint -v && echo 'Style check OK'",
     "test": "node ./node_modules/mocha/bin/mocha"
   },
@@ -21,11 +21,11 @@
   },
   "license": "GPL-3.0",
   "dependencies": {
-    "ws": "^0.8.0"
+    "ws": "^6.1.2"
   },
   "devDependencies": {
-    "echint": "^1.5.0",
-    "http-server": "^0.8.5",
+    "echint": "^4.0.1",
+    "http-server": "^0.11.1",
     "jshint": "^2.8.0",
     "mocha": "*",
     "should": "^7.1.1",

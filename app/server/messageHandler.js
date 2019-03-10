@@ -14,6 +14,9 @@ function onMessage(ws, message){
         case "init":
             onInit(ws, message.init);
             break;
+        case 'close':
+            onClose(ws.id);
+            break;
         default:
             throw new Error("invalid message type");
     }
@@ -23,6 +26,33 @@ function onInit(ws, id){
     console.log("init from peer:", id);
     ws.id = id;
     connectedPeers[id] = ws;
+    // Notify everyone about new peer
+    onPeersChanged();
+}
+
+function onClose(id) {
+    delete connectedPeers[id];
+    onPeersChanged();
+}
+
+function sendPeers(ws){
+    var peers = {};
+    for(var k in connectedPeers) {
+        if (k != ws.id) {
+            peers[k] = {id: k};
+        }
+    }
+    console.log("peers:", peers);
+    ws.send(JSON.stringify({
+        type: 'peers',
+        peers: peers
+    }));
+}
+
+function onPeersChanged(){
+    for (var p in connectedPeers) {
+        sendPeers(connectedPeers[p]);
+    }
 }
 
 function onOffer(offer, destination, source){
